@@ -1,5 +1,5 @@
 {
-  "name": "afsd-parent.mfe-host",
+  "name": "afsd.mfe-template",
   "version": "1.0.0",
   "private": true,
   "type": "module",
