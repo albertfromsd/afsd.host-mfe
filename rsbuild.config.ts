@@ -2,6 +2,7 @@ import path from 'node:path';
 import { defineConfig, loadEnv } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
+import { aliases } from './config.alias';
 
 const appDirectory = __dirname;
 const resolveApp = (...segments: string[]) => path.resolve(appDirectory, ...segments);
@@ -12,21 +13,9 @@ const { publicVars, rawPublicVars } = loadEnv({
 
 export default defineConfig({
   plugins: [pluginReact(), pluginSass()],
-
   resolve: {
-    alias: {
-      '@': resolveApp('src'),
-      '@app': resolveApp('src/app'),
-      '@components': resolveApp('src/components'),
-      '@features': resolveApp('src/features'),
-      '@pages': resolveApp('src/pages'),
-      '@shared': resolveApp('src/shared'),
-      '@styles': resolveApp('src/styles'),
-      '@assets': resolveApp('src/assets'),
-      '@tests': resolveApp('src/tests'),
-    },
+    alias: aliases
   },
-
   source: {
     define: {
       ...publicVars,
