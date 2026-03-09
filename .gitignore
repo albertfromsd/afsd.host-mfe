@@ -1,19 +1,90 @@
-# Local
-.DS_Store
-*.local
-*.log*
+############################
+# Dependencies
+############################
 
-# Dist
-node_modules
+node_modules/
+.pnpm-store/
+
+############################
+# Build output
+############################
+
 dist/
+build/
+coverage/
+storybook-static/
 
-# Profile
-.rspack-profile-*/
+############################
+# Environment variables
+############################
 
-# IDE
+.env
+.env.*
+!.env.example
+
+############################
+# Logs
+############################
+
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+############################
+# Editor / IDE
+############################
+
 .vscode/*
 !.vscode/extensions.json
-.idea
+!.vscode/settings.json
 
-*storybook.log
-storybook-static
+.idea/
+*.swp
+*.swo
+*.tmp
+
+############################
+# OS files
+############################
+
+.DS_Store
+Thumbs.db
+
+############################
+# Testing
+############################
+
+coverage/
+
+############################
+# TypeScript
+############################
+
+*.tsbuildinfo
+
+############################
+# Storybook
+############################
+
+storybook-static/
+
+############################
+# Local environment overrides
+############################
+
+.env*
+!.env.example
+
+############################
+# Husky / git hooks cache
+############################
+
+.husky/_/
+
+############################
+# Misc
+############################
+
+.cache/
+.temp/
