@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import type { NavItem } from '@/router/nav-links';
 import { isSubmenu } from './utils/navNode.utils';
 import s from './NavNode.module.scss';
@@ -13,32 +14,43 @@ export default function NavNode({ item, depth = 0 }: Props) {
 
   if (!isSubmenu(item)) {
     return (
-      <li className={s.navNodeContainer}>
-        <a href={item.path} className={s.navLink}>
+      <li className={s.navItem}>
+        <NavLink
+          to={item.path}
+          end={item.path === '/'}
+          className={({ isActive }) =>
+            isActive ? `${s.navLink} ${s.navLinkActive}` : s.navLink
+          }
+        >
           {item.label}
-        </a>
+        </NavLink>
       </li>
     );
   }
 
   return (
     <li
-      className="nav-group"
+      className={s.navGroup}
+      data-depth={depth}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
       <button
-        className="nav-link"
+        type="button"
+        className={s.navLink}
+        aria-haspopup="true"
+        aria-expanded={open}
         onClick={() => setOpen(v => !v)}
       >
         {item.label}
+        <span className={s.caret} aria-hidden>▾</span>
       </button>
 
       {open && (
-        <ul className="nav-submenu">
+        <ul className={s.submenu}>
           {item.items.map(child => (
             <NavNode
-              key={`${child.label}-${depth}`}
+              key={`${child.label}-${depth + 1}`}
               item={child}
               depth={depth + 1}
             />

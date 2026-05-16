@@ -9,6 +9,7 @@ export type NavItem =
       items: NavItem[];
       path?: never;
     };
+
 export const navItems: NavItem[] = [
   {
     label: 'Home',
@@ -17,6 +18,10 @@ export const navItems: NavItem[] = [
   {
     label: 'About',
     path: '/about',
+  },
+  {
+    label: 'Remote',
+    path: '/remote',
   },
   {
     label: 'Products',
