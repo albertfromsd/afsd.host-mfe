@@ -1,0 +1,46 @@
+.state {
+    padding: 2rem;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.message {
+    margin: 0 0 1rem;
+    opacity: 0.8;
+}
+
+.detail {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.retry {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+
+    &:hover,
+    &:focus-visible {
+        background-color: rgba(255, 255, 255, 0.14);
+    }
+}
