@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import NavNode from '@/components/NavNode/NavNode';
 import type { NavItem } from '@/router/nav-links';
+import { useSessionStore } from 'hostTemplate/stores/session';
 import s from './Navbar.module.scss';
 
 type Props = {
@@ -12,6 +13,9 @@ type Props = {
 export default function Navbar({ items, brand = 'AFSD' }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const cartCount = useSessionStore(state =>
+    state.cart.reduce((sum, item) => sum + item.quantity, 0),
+  );
 
   useEffect(() => {
     setMobileOpen(false);
@@ -41,6 +45,11 @@ export default function Navbar({ items, brand = 'AFSD' }: Props) {
         {items.map(item => (
           <NavNode key={item.label} item={item} />
         ))}
+        <li className={s.cartIndicatorWrap}>
+          <Link to="/cart" className={s.cartIndicator} aria-label={`Cart (${cartCount} items)`}>
+            Cart <span className={s.cartBadge}>{cartCount}</span>
+          </Link>
+        </li>
       </ul>
     </nav>
   );
