@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 
 const RemoteApp = lazy(() => import('remoteTemplate/App'));
 
@@ -10,10 +10,10 @@ const Page = ({ title }: { title: string }) => (
   </section>
 );
 
-const RemoteFallback = ({ error }: { error: Error }) => (
+const RemoteFallback = ({ error }: FallbackProps) => (
   <section style={{ padding: '2rem' }}>
     <h2>Failed to load remote</h2>
-    <pre>{error.message}</pre>
+    <pre>{error instanceof Error ? error.message : String(error)}</pre>
   </section>
 );
 
