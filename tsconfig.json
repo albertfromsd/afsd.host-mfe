@@ -22,13 +22,13 @@
     "noUnusedParameters": true,
 
     /* paths */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@features/*": ["src/features/*"],
-      "@shared/*": ["src/shared/*"],
-      "@styles/*": ["src/styles/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@config/*": ["./src/config/*"],
+      "@features/*": ["./src/features/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@stories/*": ["./src/stories/*"],
     }
   },
   "include": ["src"]

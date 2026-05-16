@@ -3,9 +3,13 @@ import { defineConfig, loadEnv } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
 import { aliases } from './config.alias';
+import { Environment } from './src/config/app.config';
 
 const appDirectory = __dirname;
 const resolveApp = (...segments: string[]) => path.resolve(appDirectory, ...segments);
+
+const isDev = process.env.NODE_ENV === 'development';
+const env = (process.env.SYS_LEVEL || 'development') as Environment;
 
 const { publicVars, rawPublicVars } = loadEnv({
   prefixes: ['PUBLIC_', 'APP_'],
@@ -13,14 +17,17 @@ const { publicVars, rawPublicVars } = loadEnv({
 
 export default defineConfig({
   plugins: [pluginReact(), pluginSass()],
+
   resolve: {
-    alias: aliases
+    alias: aliases,
   },
+
   source: {
+    entry: {
+      index: './src/main.tsx',
+    },
     define: {
       ...publicVars,
-
-      // Optional compatibility if you still want process.env-style access.
       'process.env': JSON.stringify(rawPublicVars),
       __APP_NAME__: JSON.stringify('host-app'),
     },
@@ -41,32 +48,34 @@ export default defineConfig({
 
   moduleFederation: {
     options: {
-      name: 'host',
-      filename: "host-remoteEntry.js",
+      name: 'hostTemplate',
+      filename: 'hostRemoteEntry.js',
+
       exposes: {},
+
       remotes: {
-        // Example:
-        // products: 'products@http://localhost:3001/mf-manifest.json',
+        remoteTemplate: 'remoteTemplate@http://localhost:3001/remoteEntry.js',
       },
+
       shared: {
         react: {
           singleton: true,
-          eager: true,
+          eager: false,
           requiredVersion: false,
         },
         'react-dom': {
           singleton: true,
-          eager: true,
+          eager: false,
           requiredVersion: false,
         },
         'react-router-dom': {
           singleton: true,
-          eager: true,
+          eager: false,
           requiredVersion: false,
         },
         zustand: {
           singleton: true,
-          eager: true,
+          eager: false,
           requiredVersion: false,
         },
       },

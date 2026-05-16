@@ -1,3 +1,99 @@
-.navNodeContainer {
-    background-color: inherit;
+$mobile-breakpoint: 768px;
+
+.navItem,
+.navGroup {
+    position: relative;
+    list-style: none;
+}
+
+.navLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    padding: 0.5rem 0.85rem;
+    color: rgba(255, 255, 255, 0.78);
+    background: transparent;
+    border: 0;
+
+    font: inherit;
+    font-size: 0.95rem;
+    text-decoration: none;
+
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    &:hover,
+    &:focus-visible {
+        background-color: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+}
+
+.navLinkActive {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.caret {
+    font-size: 0.7rem;
+    opacity: 0.7;
+}
+
+.submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 180px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem;
+
+    background-color: rgba(16, 23, 37, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 10;
+
+    .submenu {
+        top: 0;
+        left: 100%;
+    }
+}
+
+@media (max-width: $mobile-breakpoint) {
+    .navItem,
+    .navGroup {
+        width: 100%;
+    }
+
+    .navLink {
+        width: 100%;
+        padding: 0.85rem 1.25rem;
+        border-radius: 0;
+        justify-content: space-between;
+    }
+
+    .submenu {
+        position: static;
+        background: rgba(255, 255, 255, 0.03);
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+
+        .navLink {
+            padding-left: 2.25rem;
+        }
+
+        .submenu .navLink {
+            padding-left: 3.5rem;
+        }
+    }
 }

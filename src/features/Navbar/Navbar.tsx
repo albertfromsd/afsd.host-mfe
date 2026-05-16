@@ -1,20 +1,45 @@
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import NavNode from '@/components/NavNode/NavNode';
 import type { NavItem } from '@/router/nav-links';
 import s from './Navbar.module.scss';
 
 type Props = {
   items: NavItem[];
+  brand?: string;
 };
 
-export default function Navbar({ items }: Props) {
+export default function Navbar({ items, brand = 'AFSD' }: Props) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   return (
-    <nav id={s.navbarContainer}>
-      <ul className={s.navRoot}>
+    <nav className={s.navbar} aria-label="Primary">
+      <div className={s.brand}>{brand}</div>
+
+      <button
+        type="button"
+        className={s.hamburger}
+        aria-label="Toggle menu"
+        aria-expanded={mobileOpen}
+        aria-controls="primary-nav-list"
+        onClick={() => setMobileOpen(v => !v)}
+      >
+        <span className={mobileOpen ? `${s.bar} ${s.barOpen1}` : s.bar} />
+        <span className={mobileOpen ? `${s.bar} ${s.barOpen2}` : s.bar} />
+        <span className={mobileOpen ? `${s.bar} ${s.barOpen3}` : s.bar} />
+      </button>
+
+      <ul
+        id="primary-nav-list"
+        className={mobileOpen ? `${s.navRoot} ${s.navRootOpen}` : s.navRoot}
+      >
         {items.map(item => (
-          <NavNode
-            key={item.label}
-            item={item}
-          />
+          <NavNode key={item.label} item={item} />
         ))}
       </ul>
     </nav>

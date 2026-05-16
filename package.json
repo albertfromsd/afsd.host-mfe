@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.12.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/albertfromsd/afsd.host-mfe.git"
+  },
   "engines": {
     "node": ">=24.14.0 <25"
   },

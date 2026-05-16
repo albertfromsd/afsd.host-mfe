@@ -1,13 +1,15 @@
 import './App.css';
 import Navbar from './features/Navbar/Navbar';
 import { navItems } from './router/nav-links';
+import AppRoutes from './router/Routes';
 
 const App = () => {
   return (
-    <div className="content">
+    <div className="app-shell">
       <Navbar items={navItems} />
-      <h1>Rsbuild with React</h1>
-      <p>Start building amazing things with Rsbuild.</p>
+      <main className="app-main">
+        <AppRoutes />
+      </main>
     </div>
   );
 };
