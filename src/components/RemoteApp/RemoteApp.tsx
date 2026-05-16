@@ -1,5 +1,6 @@
 import { Suspense, type ComponentType, type ReactNode } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
+import Spinner from '@/components/Spinner/Spinner';
 import s from './RemoteApp.module.scss';
 
 type RemoteAppProps = {
@@ -15,15 +16,17 @@ export default function RemoteApp({
   name,
   loadingMessage = '',
   errorMessage = '',
-  fallbackComponent
+  fallbackComponent,
 }: RemoteAppProps) {
   return (
     <ErrorBoundary
-      FallbackComponent={props => (
+      FallbackComponent={(props) => (
         <RemoteErrorFallback {...props} name={name} message={errorMessage} />
       )}
     >
-      <Suspense fallback={fallbackComponent ?? <RemoteLoading name={name} message={loadingMessage} />}>
+      <Suspense
+        fallback={fallbackComponent ?? <RemoteLoading name={name} message={loadingMessage} />}
+      >
         <Component />
       </Suspense>
     </ErrorBoundary>
@@ -38,7 +41,7 @@ type LoadingProps = {
 function RemoteLoading({ name, message }: LoadingProps) {
   return (
     <section className={s.state} aria-busy="true" aria-live="polite">
-      <h2 className={s.title}>Loading {name}…</h2>
+      <Spinner label={`Loading ${name}…`} size="lg" />
       {message && <p className={s.message}>{message}</p>}
     </section>
   );
@@ -56,9 +59,7 @@ function RemoteErrorFallback({ error, resetErrorBoundary, name, message }: Error
       <p className={s.message}>
         {message ?? 'The remote module could not be reached. The rest of the app is unaffected.'}
       </p>
-      <pre className={s.detail}>
-        {error instanceof Error ? error.message : String(error)}
-      </pre>
+      <pre className={s.detail}>{error instanceof Error ? error.message : String(error)}</pre>
       <button type="button" className={s.retry} onClick={resetErrorBoundary}>
         Retry
       </button>

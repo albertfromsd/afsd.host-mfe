@@ -29,7 +29,9 @@
       "@features/*": ["./src/features/*"],
       "@shared/*": ["./src/shared/*"],
       "@stories/*": ["./src/stories/*"],
+      "*": ["./@mf-types/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "@mf-types"],
+  "exclude": ["src/stories/**/*"]
 }

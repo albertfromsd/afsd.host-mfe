@@ -64,6 +64,13 @@ coverage/
 *.tsbuildinfo
 
 ############################
+# Module Federation types (auto-generated)
+############################
+
+@mf-types/
+@mf-types.zip
+
+############################
 # Storybook
 ############################
 
