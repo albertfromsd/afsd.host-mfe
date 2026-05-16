@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import RemoteApp from '@/components/RemoteApp/RemoteApp';
+import Cart from '@/pages/Cart';
 
 const RemoteTemplateApp = lazy(() => import('remoteTemplate/App'));
 
@@ -18,6 +19,7 @@ export default function AppRoutes() {
       <Route path="/pricing" element={<Page title="Pricing" />} />
       <Route path="/solutions/enterprise" element={<Page title="Enterprise" />} />
       <Route path="/solutions/startup" element={<Page title="Startup" />} />
+      <Route path="/cart" element={<Cart />} />
       <Route
         path="/remote/*"
         element={<RemoteApp Component={RemoteTemplateApp} name="Remote Template" />}

@@ -57,6 +57,7 @@ export default defineConfig({
 
       remotes: {
         remoteTemplate: 'remoteTemplate@http://localhost:3001/remoteEntry.js',
+        hostTemplate: 'hostTemplate@http://localhost:3000/hostRemoteEntry.js',
       },
 
       shared: {
