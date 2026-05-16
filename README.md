@@ -181,14 +181,22 @@ import { useSessionStore } from '@/stores/sessionAccessor'; // remote-side
 
 ### Type sharing across the federation boundary
 
-The `dts` option on the module federation plugin auto-generates `.d.ts`
-declarations for exposed modules and pulls them on the consuming side.
-Generated files land under `@mf-types/` (gitignored) and are referenced from
-`tsconfig.json` via the `"*": ["./@mf-types/*"]` path entry.
+The `dts` option on the module federation plugin (configured in
+[rsbuild.config.ts](rsbuild.config.ts)) is intended to auto-generate `.d.ts`
+declarations for exposed modules and pull remote types into `@mf-types/`
+(gitignored, referenced from `tsconfig.json` via `"*": ["./@mf-types/*"]`).
 
-Hand-written declarations under [src/shared/types/remotes.d.ts](src/shared/types/remotes.d.ts)
-serve as a fallback (and for `remoteTemplate/App`, which is a non-typed
-React component surface).
+**Current status**: the option is wired but the rsbuild wrapper isn't
+emitting `@mf-types/` reliably (the wrapper imports
+`ModuleFederationPluginOptions` from `@rspack/core`, which lags behind
+`@module-federation/enhanced`'s runtime support — hence the
+`@ts-expect-error`). The wiring stays in place because it costs nothing and
+may start working as the wrapper catches up.
+
+**Source of truth today**: hand-written declarations under
+[src/shared/types/remotes.d.ts](src/shared/types/remotes.d.ts) for the host,
+and `src/hostRemotes.d.ts` on the remote side. When you change the shape of
+an exposed module, update both sides.
 
 ## Adding a new remote
 
