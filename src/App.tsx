@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
+import { useSessionStore } from 'hostTemplate/stores/session';
 import './App.css';
 import Navbar from './features/Navbar/Navbar';
 import { navItems } from './router/nav-links';
@@ -39,6 +41,12 @@ const RouteTreeFallback = ({ error, resetErrorBoundary }: FallbackProps) => (
 );
 
 const App = () => {
+  const theme = useSessionStore((s) => s.theme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
   return (
     <div className="app-shell">
       <Navbar items={navItems} />
