@@ -1,4 +1,4 @@
-import { Suspense, type ComponentType } from 'react';
+import { Suspense, type ComponentType, type ReactNode } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import s from './RemoteApp.module.scss';
 
@@ -7,13 +7,15 @@ type RemoteAppProps = {
   name: string;
   loadingMessage?: string;
   errorMessage?: string;
+  fallbackComponent?: ReactNode;
 };
 
 export default function RemoteApp({
   Component,
   name,
-  loadingMessage,
-  errorMessage,
+  loadingMessage = '',
+  errorMessage = '',
+  fallbackComponent
 }: RemoteAppProps) {
   return (
     <ErrorBoundary
@@ -21,7 +23,7 @@ export default function RemoteApp({
         <RemoteErrorFallback {...props} name={name} message={errorMessage} />
       )}
     >
-      <Suspense fallback={<RemoteLoading name={name} message={loadingMessage} />}>
+      <Suspense fallback={fallbackComponent ?? <RemoteLoading name={name} message={loadingMessage} />}>
         <Component />
       </Suspense>
     </ErrorBoundary>
