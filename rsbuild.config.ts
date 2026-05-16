@@ -51,7 +51,9 @@ export default defineConfig({
       name: 'hostTemplate',
       filename: 'hostRemoteEntry.js',
 
-      exposes: {},
+      exposes: {
+        './stores/session': './src/stores/session.ts',
+      },
 
       remotes: {
         remoteTemplate: 'remoteTemplate@http://localhost:3001/remoteEntry.js',
