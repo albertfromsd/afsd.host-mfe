@@ -1,0 +1,46 @@
+@use 'shared/styles' as *;
+
+.toggle {
+  @include reset-button;
+  @include transition(background-color border-color color transform, var(--duration-fast));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-border-default);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  @include focus-visible;
+}
+
+.iconLight,
+.iconDark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.iconLight {
+  color: var(--color-warning);
+}
+
+.iconDark {
+  color: var(--color-accent);
+}
