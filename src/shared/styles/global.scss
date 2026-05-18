@@ -1,0 +1,68 @@
+// Global stylesheet — imported once from the App entry.
+// Emits the token CSS variables and applies base resets / body styles.
+
+@use 'shared/styles/tokens';
+@use 'shared/styles' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-family-sans);
+  font-size: 16px;
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100dvh;
+  // Lets full-bleed sections use `width: 100vw` + `margin-left: calc(50% - 50vw)`
+  // to escape the page container without introducing a horizontal scrollbar.
+  overflow-x: hidden;
+  background-color: var(--color-bg-canvas);
+  background-image: var(--color-bg-canvas-gradient);
+  background-attachment: fixed;
+  color: var(--color-text-primary);
+  @include transition(background-color color, var(--duration-slow));
+}
+
+a {
+  color: var(--color-accent);
+  @include transition(color, var(--duration-fast));
+
+  &:hover {
+    color: var(--color-accent-hover);
+  }
+
+  @include focus-visible;
+}
+
+button {
+  font-family: inherit;
+}
+
+:root {
+  accent-color: var(--color-accent);
+}
+
+@include reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,47 @@
+// Compile-time breakpoint scale. CSS vars don't work inside media queries,
+// so these are kept as Sass variables.
+
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+$bp-2xl: 1536px;
+
+// Min-width query (mobile-first).
+@mixin from($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+// Max-width query (down to, exclusive of the named breakpoint).
+@mixin until($bp) {
+  @media (max-width: ($bp - 0.02px)) {
+    @content;
+  }
+}
+
+// Common aliases — readable shorthand for the typical cases.
+@mixin mobile {
+  @include until($bp-md) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @include from($bp-md) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @include from($bp-lg) {
+    @content;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}

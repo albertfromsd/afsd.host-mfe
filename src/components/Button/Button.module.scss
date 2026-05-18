@@ -1,0 +1,118 @@
+@use 'shared/styles' as *;
+
+.button {
+  @include reset-button;
+  @include reset-link;
+  @include transition(
+    background-color border-color color transform box-shadow,
+    var(--duration-fast)
+  );
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  font-family: var(--font-family-sans);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  @include focus-visible(2px);
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+// ─── Sizes ────────────────────────────────────────────────────────────────
+
+.size_sm {
+  height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.size_md {
+  height: 40px;
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-base);
+}
+
+.size_lg {
+  height: 48px;
+  padding: 0 var(--space-5);
+  font-size: var(--font-size-md);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+// ─── Variants ─────────────────────────────────────────────────────────────
+
+.v_primary {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  box-shadow: var(--shadow-xs);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-accent-hover);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+.v_secondary {
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-default);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-border-strong);
+  }
+}
+
+.v_ghost {
+  background-color: transparent;
+  color: var(--color-text-secondary);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text-primary);
+  }
+}
+
+.v_danger {
+  background-color: transparent;
+  color: var(--color-danger);
+  border-color: var(--color-border-subtle);
+
+  &:hover:not(:disabled) {
+    background-color: rgba(239, 68, 68, 0.08);
+    border-color: var(--color-danger);
+  }
+}

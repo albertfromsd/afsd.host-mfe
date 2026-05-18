@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { useSessionStore } from 'hostTemplate/stores/session';
+import '@/shared/styles/global.scss';
 import './App.css';
 import Navbar from './features/Navbar/Navbar';
 import { navItems } from './router/nav-links';
