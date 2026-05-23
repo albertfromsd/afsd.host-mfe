@@ -21,17 +21,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 
-    /* paths */
+    /* paths — must mirror config.alias.ts */
     "paths": {
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
-      "@config/*": ["./src/config/*"],
       "@features/*": ["./src/features/*"],
+      "@pages/*": ["./src/pages/*"],
       "@shared/*": ["./src/shared/*"],
-      "@stories/*": ["./src/stories/*"],
       "*": ["./@mf-types/*"]
     }
   },
-  "include": ["src", "@mf-types"],
-  "exclude": ["src/stories/**/*"]
+  "include": ["src", "@mf-types"]
 }

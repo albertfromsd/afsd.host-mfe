@@ -3,6 +3,6 @@ declare module 'remoteTemplate/App' {
   export default RemoteApp;
 }
 
-declare module 'hostTemplate/stores/session' {
-  export * from '@/stores/session';
+declare module 'hostTemplate/stores/store' {
+  export * from '@/shared/stores/store';
 }

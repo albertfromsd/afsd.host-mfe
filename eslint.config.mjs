@@ -8,7 +8,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-export default defineConfig([globalIgnores(['dist', 'src/stories/**', '@mf-types/**']), {
+export default defineConfig([globalIgnores(['dist', '@mf-types/**']), {
   files: ['**/*.{ts,tsx}'],
   extends: [
     js.configs.recommended,

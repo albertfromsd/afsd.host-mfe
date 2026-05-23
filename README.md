@@ -14,6 +14,7 @@ Paired with [albertfromsd/afsd.remote-mfe](https://github.com/albertfromsd/afsd.
 | Module Federation    | [`@module-federation/enhanced`](https://module-federation.io) |
 | UI                   | React 19 + react-router-dom v7                                |
 | State                | zustand (federated, sessionStorage-persisted)                 |
+| Server state         | TanStack Query (host-provided, context-inherited by remotes)  |
 | Styles               | SCSS Modules + Tailwind v4                                    |
 | Tests                | Vitest + Testing Library + jsdom                              |
 | Lint / format        | ESLint flat config + Prettier                                 |
@@ -57,25 +58,30 @@ will show the `RemoteApp` error fallback with a retry button.
 ```
 host (3000)  ─── consumes ───►  remote (3001) ./App
    │                                  ▲
-   ├── exposes ./stores/session ──────┘
+   ├── exposes ./stores/store ────────┘
    │                                  │
-   └── consumes its own ./stores/session ──┘   (self-federation —
-                                                see "Why self-federation"
-                                                below)
+   └── consumes its own ./stores/store ──┘   (self-federation —
+                                              see "Why self-federation"
+                                              below)
 ```
 
-Both apps share `react`, `react-dom`, `react-router-dom`, and `zustand` as
-non-eager singletons. Non-eager is paired with the
+Both apps share `react`, `react-dom`, `react-router-dom`, `zustand`, and
+`@tanstack/react-query` as non-eager singletons. Non-eager is paired with the
 `main.tsx → import('./bootstrap')` async-import pattern so federation can
 fully wire up the share scope before any component runs.
 
+> **Why `@tanstack/react-query` must be a singleton:** it stores the active
+> `QueryClient` in a React context object created at module-load time. Two
+> module copies → two different context objects → the remote's `useQuery`
+> never finds the host's provider. The same trap as duplicated `react`.
+
 ### Why self-federation (host loads its own exposed module)
 
-Without it, the host evaluates `src/stores/session.ts` directly (one store
-instance) **and** the remote loads `hostTemplate/stores/session` via federation
-(a separate evaluation → second store instance). Both persist to the same
-sessionStorage key but their in-memory subscriptions are independent. Symptom:
-remote writes don't trigger host re-renders.
+Without it, the host evaluates `src/shared/stores/store.ts` directly (one
+store instance) **and** the remote loads `hostTemplate/stores/store` via
+federation (a separate evaluation → second store instance). Both persist to
+the same sessionStorage key but their in-memory subscriptions are independent.
+Symptom: remote writes don't trigger host re-renders.
 
 Fix: the host imports the store through the same federated path the remote
 uses, so both go through one runtime container. The host therefore registers
@@ -150,34 +156,96 @@ routed tree is unaffected.
 
 ### Federated state
 
-The session store ([src/stores/session.ts](src/stores/session.ts)) is the
-canonical instance. It uses zustand's `persist` middleware to write to
-sessionStorage under `afsd.session.v1` with `version`-keyed migrations,
-plus `devtools` in non-production. Shape:
+The canonical store lives at
+[src/shared/stores/store.ts](src/shared/stores/store.ts). It composes three
+slices from [src/shared/stores/slices/](src/shared/stores/slices/) and applies
+zustand's `persist` middleware (sessionStorage, key `afsd.store.v1`, version-
+keyed migrations) plus `devtools` in non-production:
 
-```ts
-type SessionState = {
-  userId: string | null;
-  displayName: string | null;
-  theme: 'light' | 'dark';
-  cart: CartItem[];
-  setUser / clearUser / setTheme;
-  addToCart / incrementCart / decrementCart / removeFromCart / clearCart;
-};
+```
+shared/stores/
+├── store.ts                # main store: AppState = AuthSlice & UiSlice & CartSlice
+└── slices/
+    ├── authSlice.ts        # userId, displayName, setUser, clearUser
+    ├── uiSlice.ts          # theme, setTheme
+    └── cartSlice.ts        # cart, addToCart, incrementCart, decrementCart, …
 ```
 
-**Host code** imports it through the federated path (NOT `@/stores/session`):
+Each slice file exports `createXSlice: StateCreator<AppState, [], [], XSlice>`
+and its own `XSlice` type. `store.ts` aggregates them: `AppState = AuthSlice &
+UiSlice & CartSlice`. Adding a slice is two files (`slices/newSlice.ts` +
+spread it in `store.ts`).
+
+**Host code** imports the hook through the federated path (NOT
+`@/shared/stores/store` — that would evaluate a second instance; see
+"Why self-federation"):
 
 ```ts
-import { useSessionStore } from 'hostTemplate/stores/session';
+import { useStore } from 'hostTemplate/stores/store';
 ```
 
 **Remote code** imports through its accessor (which dynamically loads the
 federated module, with a local fallback for standalone mode):
 
 ```ts
-import { useSessionStore } from '@/stores/sessionAccessor'; // remote-side
+import { useStore } from '@/shared/stores/storeAccessor'; // remote-side
 ```
+
+**When a second store is appropriate** (the default for this template is one
+composed store):
+
+1. Lifecycle differs — e.g., server-state cache (TanStack Query) has a
+   request/response lifecycle, not a session lifecycle.
+2. Different persistence backend — e.g., IndexedDB-backed drafts alongside
+   sessionStorage-backed session.
+3. High-frequency isolated updates — e.g., 30+ writes/sec presence/cursor
+   data. Only break out if profiling shows render fanout.
+
+### Server state — TanStack Query
+
+Server state (HTTP cache, in-flight requests, refetch behavior) lives in a
+TanStack Query `QueryClient`, **not** the zustand store. The two have
+different lifecycles and shouldn't share a store (see above).
+
+The host creates the canonical `QueryClient` at
+[src/shared/lib/queryClient.ts](src/shared/lib/queryClient.ts) and wraps the
+entire route tree in `<QueryClientProvider client={queryClient}>` inside
+[App.tsx](src/App.tsx). Because the federated remote `<App />` renders as a
+child of those routes, **the remote inherits the host's `QueryClient` via
+React context automatically** — no module federation needed for server state.
+One client, one cache, one set of in-flight requests for the whole MFE app.
+
+```ts
+// host or remote (when embedded)
+import { useQuery } from '@tanstack/react-query';
+
+function ProfileCard() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['user', 'me'],
+    queryFn: () => api.get('/me').then((r) => r.data),
+  });
+  // ...
+}
+```
+
+**Defaults** are set centrally in `createQueryClient()` — adjust there once
+to change behavior everywhere. Current shape:
+
+| Option                         | Value  | Why                                           |
+| ------------------------------ | ------ | --------------------------------------------- |
+| `queries.staleTime`            | 60s    | Fresh-enough window; refetches on focus       |
+| `queries.gcTime`               | 5min   | Cache retained while components are unmounted |
+| `queries.refetchOnWindowFocus` | `true` | Keep UI in sync after tab focus               |
+| `queries.retry`                | smart  | Retry up to 2x; never retry 4xx               |
+| `mutations.retry`              | `0`    | Mutations are destructive; don't retry blind  |
+
+**React Query Devtools** are rendered only in non-production (`bottom-left`).
+Because there's one provider for the whole app, the host's devtools sees
+queries fired from both host and remote.
+
+**Standalone remote** creates its own `QueryClient` from the same factory in
+its `bootstrap.tsx` (mirrors the BrowserRouter pattern: provider only when
+running standalone). See the remote repo for details.
 
 ### Type sharing across the federation boundary
 
@@ -194,9 +262,8 @@ emitting `@mf-types/` reliably (the wrapper imports
 may start working as the wrapper catches up.
 
 **Source of truth today**: hand-written declarations under
-[src/shared/types/remotes.d.ts](src/shared/types/remotes.d.ts) for the host,
-and `src/hostRemotes.d.ts` on the remote side. When you change the shape of
-an exposed module, update both sides.
+[src/shared/types/remotes.d.ts](src/shared/types/remotes.d.ts) on each side.
+When you change the shape of an exposed module, update both files.
 
 ## Adding a new remote
 
@@ -242,7 +309,7 @@ Vars prefixed with `PUBLIC_` or `APP_` are inlined at build time via
 | ---------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
 | `PUBLIC_HOST_TEMPLATE_URL`   | `http://localhost:3000` | Origin where this host serves its own `hostRemoteEntry.js` (used by self-federation and by remotes) |
 | `PUBLIC_REMOTE_TEMPLATE_URL` | `http://localhost:3001` | Origin where the remote serves `remoteEntry.js`                                                     |
-| `PUBLIC_API_BASE_URL`        | _(unset)_               | Base URL for the axios `api` client in [src/lib/api.ts](src/lib/api.ts)                             |
+| `PUBLIC_API_BASE_URL`        | _(unset)_               | Base URL for the axios `api` client in [src/shared/lib/api.ts](src/shared/lib/api.ts)               |
 | `ANALYZE`                    | `false`                 | Set to `true` (via `pnpm analyze`) to emit a bundle report                                          |
 
 ## CI
@@ -267,22 +334,27 @@ version from `.nvmrc`.
 
 ```
 src/
-├── App.{tsx,css}                 # shell: Navbar + ErrorBoundary + Routes
+├── App.{tsx,scss}                # shell: Navbar + ErrorBoundary + Routes
 ├── main.tsx → bootstrap.tsx      # MF async-import entry
-├── components/
+├── components/                   # leaf UI primitives (colocated .stories.ts)
+│   ├── Button/  Card/  Link/  NavNode/  Page/
 │   ├── RemoteApp/                # reusable wrapper for federated remotes
-│   ├── Skeleton/
-│   ├── Spinner/
-│   └── NavNode/
-├── config/                       # build-time config types
-├── features/
+│   ├── Skeleton/  Spinner/  ThemeToggle/
+├── features/                     # composed cross-cutting UI
 │   └── Navbar/                   # top bar w/ mobile drawer + cart badge
-├── lib/
-│   ├── api.ts                    # axios client + interceptors
-│   └── mfRuntimePlugin.ts        # federation runtime error hook
 ├── pages/                        # host-owned route components
 ├── router/                       # AppRoutes + nav-links data
-├── shared/types/remotes.d.ts     # federated module declarations
-├── stores/session.ts             # canonical zustand store (federated)
-└── test/setup.ts                 # vitest setup (testing-library cleanup)
+└── shared/                       # anything imported by 2+ siblings above
+    ├── config/                   # app.config.ts (build/env-derived settings)
+    ├── lib/                      # external-world adapters
+    │   ├── api.ts                # axios client + interceptors
+    │   ├── queryClient.ts        # TanStack Query client (host-provided via context)
+    │   └── mfRuntimePlugin.ts    # federation runtime error hook
+    ├── stores/                   # zustand store (federated)
+    │   ├── store.ts              # canonical instance — composes slices
+    │   └── slices/               # authSlice, uiSlice, cartSlice
+    ├── styles/                   # tokens, themes, mixins
+    ├── test/setup.ts             # vitest setup (testing-library cleanup)
+    ├── types/                    # cross-cutting types + remotes.d.ts
+    └── utils/                    # pure helpers
 ```
