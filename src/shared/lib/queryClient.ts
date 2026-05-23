@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import type { ApiError } from './api';
+import { isApiError } from './api';
 
 /**
  * Canonical QueryClient defaults for the AFSD MFE app.
@@ -20,7 +20,7 @@ export function createQueryClient(): QueryClient {
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: true,
         retry: (failureCount, error) => {
-          const status = (error as ApiError | null)?.status ?? null;
+          const status = isApiError(error) ? error.status : null;
           if (status !== null && status >= 400 && status < 500) return false;
           return failureCount < 2;
         },
