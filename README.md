@@ -247,6 +247,31 @@ queries fired from both host and remote.
 its `bootstrap.tsx` (mirrors the BrowserRouter pattern: provider only when
 running standalone). See the remote repo for details.
 
+### Configuration constants
+
+Values shared across `rsbuild.config.ts`, `vitest.config.ts`, and source code
+live in [src/shared/config/app.constants.ts](src/shared/config/app.constants.ts).
+Single source of truth — when a literal needs to change, change it here.
+
+Current blocks:
+
+| Block        | Examples                                                    |
+| ------------ | ----------------------------------------------------------- |
+| `FEDERATION` | `NAME`, `FILENAME`, `EXPOSES.*`, `REMOTES.*`                |
+| `APP`        | `NAME`, `PORT`                                              |
+| `STORAGE`    | `STORE_KEY`, `STORE_VERSION`                                |
+| `ENV`        | `PUBLIC_PREFIXES`, `DEFAULT_HOST_URL`, `DEFAULT_REMOTE_URL` |
+
+**Rules** (codified in [AGENTS.md](AGENTS.md)):
+
+- `*.constants.ts` is the naming convention for all consolidated-value files
+  in this codebase.
+- The file MUST be self-contained — no `@/...` alias imports, because build
+  configs load it before alias resolution runs. Relative imports / stdlib
+  only.
+- Use `as const` objects, not `enum`s. Keeps runtime presence and avoids
+  `verbatimModuleSyntax` complications.
+
 ### Type sharing across the federation boundary
 
 The `dts` option on the module federation plugin (configured in
@@ -267,12 +292,26 @@ When you change the shape of an exposed module, update both files.
 
 ## Adding a new remote
 
-1. **In this host's [rsbuild.config.ts](rsbuild.config.ts):**
+1. **Declare it in [src/shared/config/app.constants.ts](src/shared/config/app.constants.ts):**
 
    ```ts
+   export const FEDERATION = {
+     // ...
+     REMOTES: {
+       REMOTE_TEMPLATE: { name: 'remoteTemplate', entry: 'remoteEntry.js' },
+       NEW_REMOTE: { name: 'newRemote', entry: 'remoteEntry.js' },
+     },
+   } as const;
+   ```
+
+   Then plug into [rsbuild.config.ts](rsbuild.config.ts):
+
+   ```ts
+   const newRemoteUrl = rawPublicVars.PUBLIC_NEW_REMOTE_URL ?? 'http://localhost:3002';
+   // ...
    remotes: {
      // ...existing
-     newRemote: `newRemote@${process.env.PUBLIC_NEW_REMOTE_URL ?? 'http://localhost:3002'}/remoteEntry.js`,
+     [FEDERATION.REMOTES.NEW_REMOTE.name]: `${FEDERATION.REMOTES.NEW_REMOTE.name}@${newRemoteUrl}/${FEDERATION.REMOTES.NEW_REMOTE.entry}`,
    }
    ```
 
@@ -345,7 +384,7 @@ src/
 ├── pages/                        # host-owned route components
 ├── router/                       # AppRoutes + nav-links data
 └── shared/                       # anything imported by 2+ siblings above
-    ├── config/                   # app.config.ts (build/env-derived settings)
+    ├── config/                   # app.constants.ts (shared by build configs + source)
     ├── lib/                      # external-world adapters
     │   ├── api.ts                # axios client + interceptors
     │   ├── queryClient.ts        # TanStack Query client (host-provided via context)
