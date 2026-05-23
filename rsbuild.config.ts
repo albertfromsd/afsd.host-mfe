@@ -2,15 +2,16 @@ import { defineConfig, loadEnv } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
 import { aliases } from './config.alias';
+import { APP, ENV, FEDERATION } from './src/shared/config/app.constants';
 
 const analyze = process.env.ANALYZE === 'true';
 
 const { publicVars, rawPublicVars } = loadEnv({
-  prefixes: ['PUBLIC_', 'APP_'],
+  prefixes: [...ENV.PUBLIC_PREFIXES],
 });
 
-const REMOTE_TEMPLATE_URL = rawPublicVars.PUBLIC_REMOTE_TEMPLATE_URL ?? 'http://localhost:3001';
-const HOST_TEMPLATE_URL = rawPublicVars.PUBLIC_HOST_TEMPLATE_URL ?? 'http://localhost:3000';
+const REMOTE_TEMPLATE_URL = rawPublicVars.PUBLIC_REMOTE_TEMPLATE_URL ?? ENV.DEFAULT_REMOTE_URL;
+const HOST_TEMPLATE_URL = rawPublicVars.PUBLIC_HOST_TEMPLATE_URL ?? ENV.DEFAULT_HOST_URL;
 
 export default defineConfig({
   plugins: [pluginReact(), pluginSass()],
@@ -26,12 +27,12 @@ export default defineConfig({
     define: {
       ...publicVars,
       'process.env': JSON.stringify(rawPublicVars),
-      __APP_NAME__: JSON.stringify('host-app'),
+      __APP_NAME__: JSON.stringify(APP.NAME),
     },
   },
 
   server: {
-    port: 3000,
+    port: APP.PORT,
     open: true,
   },
 
@@ -54,18 +55,19 @@ export default defineConfig({
 
   moduleFederation: {
     options: {
-      name: 'hostTemplate',
-      filename: 'hostRemoteEntry.js',
+      name: FEDERATION.NAME,
+      filename: FEDERATION.FILENAME,
 
       runtimePlugins: ['./src/shared/lib/mfRuntimePlugin.ts'],
 
       exposes: {
-        './stores/store': './src/shared/stores/store.ts',
+        [FEDERATION.EXPOSES.STORE]: './src/shared/stores/store.ts',
       },
 
       remotes: {
-        remoteTemplate: `remoteTemplate@${REMOTE_TEMPLATE_URL}/remoteEntry.js`,
-        hostTemplate: `hostTemplate@${HOST_TEMPLATE_URL}/hostRemoteEntry.js`,
+        [FEDERATION.REMOTES.REMOTE_TEMPLATE.name]:
+          `${FEDERATION.REMOTES.REMOTE_TEMPLATE.name}@${REMOTE_TEMPLATE_URL}/${FEDERATION.REMOTES.REMOTE_TEMPLATE.entry}`,
+        [FEDERATION.NAME]: `${FEDERATION.NAME}@${HOST_TEMPLATE_URL}/${FEDERATION.FILENAME}`,
       },
 
       // rsbuild's ModuleFederationConfig type wraps @rspack/core's
