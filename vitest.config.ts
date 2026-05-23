@@ -1,13 +1,13 @@
-import { defineConfig } from 'vitest/config'
-import { aliases } from './config.alias'
+import { defineConfig } from 'vitest/config';
+import { aliases } from './config.alias';
 
 export default defineConfig({
   resolve: {
-    alias: aliases
+    alias: aliases,
   },
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: './src/test/setup.ts',
+    setupFiles: './src/shared/test/setup.ts',
   },
-})
+});

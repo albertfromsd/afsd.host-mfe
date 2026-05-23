@@ -1,10 +1,10 @@
-import { useSessionStore } from '@/stores/session';
+import { useStore } from 'hostTemplate/stores/store';
 import { nextTheme, THEMES } from '@/shared/styles/theme.config';
 import s from './ThemeToggle.module.scss';
 
 export default function ThemeToggle() {
-  const theme = useSessionStore((state) => state.theme);
-  const setTheme = useSessionStore((state) => state.setTheme);
+  const theme = useStore((state) => state.theme);
+  const setTheme = useStore((state) => state.setTheme);
 
   const isDark = theme === 'dark';
   const target = nextTheme(theme);

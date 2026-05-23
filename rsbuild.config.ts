@@ -57,10 +57,10 @@ export default defineConfig({
       name: 'hostTemplate',
       filename: 'hostRemoteEntry.js',
 
-      runtimePlugins: ['./src/lib/mfRuntimePlugin.ts'],
+      runtimePlugins: ['./src/shared/lib/mfRuntimePlugin.ts'],
 
       exposes: {
-        './stores/session': './src/stores/session.ts',
+        './stores/store': './src/shared/stores/store.ts',
       },
 
       remotes: {
@@ -95,6 +95,11 @@ export default defineConfig({
           requiredVersion: false,
         },
         zustand: {
+          singleton: true,
+          eager: false,
+          requiredVersion: false,
+        },
+        '@tanstack/react-query': {
           singleton: true,
           eager: false,
           requiredVersion: false,

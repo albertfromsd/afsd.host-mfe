@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
-import { useSessionStore } from 'hostTemplate/stores/session';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useStore } from 'hostTemplate/stores/store';
+import { queryClient } from '@/shared/lib/queryClient';
 import '@/shared/styles/global.scss';
-import './App.css';
+import './App.scss';
 import Navbar from './features/Navbar/Navbar';
 import { navItems } from './router/nav-links';
 import AppRoutes from './router/Routes';
@@ -42,21 +45,26 @@ const RouteTreeFallback = ({ error, resetErrorBoundary }: FallbackProps) => (
 );
 
 const App = () => {
-  const theme = useSessionStore((s) => s.theme);
+  const theme = useStore((s) => s.theme);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
   return (
-    <div className="app-shell">
-      <Navbar items={navItems} />
-      <main className="app-main">
-        <ErrorBoundary FallbackComponent={RouteTreeFallback}>
-          <AppRoutes />
-        </ErrorBoundary>
-      </main>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="app-shell">
+        <Navbar items={navItems} />
+        <main className="app-main">
+          <ErrorBoundary FallbackComponent={RouteTreeFallback}>
+            <AppRoutes />
+          </ErrorBoundary>
+        </main>
+      </div>
+      {process.env.NODE_ENV !== 'production' && (
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+      )}
+    </QueryClientProvider>
   );
 };
 

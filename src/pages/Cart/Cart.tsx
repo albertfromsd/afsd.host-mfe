@@ -1,11 +1,11 @@
-import { useSessionStore } from 'hostTemplate/stores/session';
+import { useStore } from 'hostTemplate/stores/store';
 
 export default function Cart() {
-  const cart = useSessionStore(s => s.cart);
-  const incrementCart = useSessionStore(s => s.incrementCart);
-  const decrementCart = useSessionStore(s => s.decrementCart);
-  const removeFromCart = useSessionStore(s => s.removeFromCart);
-  const clearCart = useSessionStore(s => s.clearCart);
+  const cart = useStore((s) => s.cart);
+  const incrementCart = useStore((s) => s.incrementCart);
+  const decrementCart = useStore((s) => s.decrementCart);
+  const removeFromCart = useStore((s) => s.removeFromCart);
+  const clearCart = useStore((s) => s.clearCart);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -21,7 +21,7 @@ export default function Cart() {
       ) : (
         <>
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem' }}>
-            {cart.map(item => (
+            {cart.map((item) => (
               <li
                 key={item.id}
                 style={{

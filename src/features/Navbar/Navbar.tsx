@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import NavNode from '@/components/NavNode/NavNode';
 import type { NavItem } from '@/router/nav-links';
-import { useSessionStore } from 'hostTemplate/stores/session';
+import { useStore } from 'hostTemplate/stores/store';
 import s from './Navbar.module.scss';
 
 type Props = {
@@ -13,9 +13,7 @@ type Props = {
 export default function Navbar({ items, brand = 'AFSD' }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const cartCount = useSessionStore((state) =>
-    state.cart.reduce((sum, item) => sum + item.quantity, 0),
-  );
+  const cartCount = useStore((state) => state.cart.reduce((sum, item) => sum + item.quantity, 0));
 
   useEffect(() => {
     // Close mobile drawer when the URL changes — drawer has independent
