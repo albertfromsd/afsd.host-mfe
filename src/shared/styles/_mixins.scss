@@ -2,12 +2,13 @@
 
 // ─── Focus / a11y ─────────────────────────────────────────────────────────
 
-@mixin focus-ring($offset: 2px, $color: var(--color-focus-ring)) {
+@mixin focus-ring($offset: 0.125rem, $color: var(--color-focus-ring)) {
+  // 2px — focus ring stroke is a hairline; thinner reads as fuzzy on hi-DPI.
   outline: 2px solid $color;
   outline-offset: $offset;
 }
 
-@mixin focus-visible($offset: 2px) {
+@mixin focus-visible($offset: 0.125rem) {
   &:focus {
     outline: none;
   }
@@ -18,6 +19,8 @@
 
 @mixin sr-only {
   position: absolute;
+  // 1px — sub-pixel widths can be optimized out by browsers; keep a real pixel
+  // so the element remains in the a11y tree without being visually rendered.
   width: 1px;
   height: 1px;
   padding: 0;
@@ -30,7 +33,7 @@
 
 // ─── Surfaces ─────────────────────────────────────────────────────────────
 
-@mixin glass-surface($blur: 14px) {
+@mixin glass-surface($blur: 0.875rem) {
   background-color: var(--color-bg-surface-raised);
   backdrop-filter: blur($blur) saturate(140%);
   -webkit-backdrop-filter: blur($blur) saturate(140%);
@@ -38,6 +41,7 @@
 
 @mixin elevated($shadow: var(--shadow-md)) {
   background-color: var(--color-bg-surface-overlay);
+  // 1px — sub-pixel borders blur on non-retina; keep as device pixel.
   border: 1px solid var(--color-border-subtle);
   box-shadow: $shadow;
 }

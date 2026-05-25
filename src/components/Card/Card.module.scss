@@ -5,6 +5,7 @@
 
   display: block;
   background-color: var(--color-bg-surface);
+  // 1px — sub-pixel borders blur on non-retina; keep as device pixel.
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   color: inherit;
@@ -29,9 +30,9 @@
   &:hover {
     background-color: var(--color-bg-hover);
     border-color: var(--color-accent);
-    transform: translateY(-3px);
+    transform: translateY(-0.1875rem);
     box-shadow: var(--shadow-md);
   }
 
-  @include focus-visible(4px);
+  @include focus-visible(0.25rem);
 }

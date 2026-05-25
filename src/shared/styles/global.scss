@@ -18,6 +18,8 @@ body {
 
 html {
   font-family: var(--font-family-sans);
+  // 16px — anchors the rem scale (1rem === 16px). This is the ONLY place
+  // the root font-size should be defined in px; every other size uses rem.
   font-size: 16px;
   line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
