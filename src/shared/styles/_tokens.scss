@@ -53,11 +53,13 @@
   --space-20: 5rem;
 
   // ── Radii ──────────────────────────────────────────────────────────────
-  --radius-xs: 3px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-xs: 0.1875rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  // 9999px — intentionally large to maximize roundness regardless of element size;
+  // a rem equivalent would still need to be very large and add no clarity.
   --radius-full: 9999px;
 
   // ── Typography ─────────────────────────────────────────────────────────
@@ -91,8 +93,8 @@
   --letter-spacing-wide: 0.04em;
 
   // ── Layout ─────────────────────────────────────────────────────────────
-  --navbar-height: 60px;
-  --content-max-width: 1200px;
+  --navbar-height: 3.75rem;
+  --content-max-width: 75rem;
 
   // ── Z-index scale ──────────────────────────────────────────────────────
   --z-base: 0;

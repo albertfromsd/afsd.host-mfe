@@ -1,46 +1,58 @@
+@use 'shared/styles' as *;
+
 .state {
-    padding: 2rem;
-    max-width: 640px;
-    margin: 0 auto;
+  padding: var(--space-8);
+  max-width: 40rem;
+  margin: 0 auto;
 }
 
 .title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem;
+  @include heading-2;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2);
 }
 
 .message {
-    margin: 0 0 1rem;
-    opacity: 0.8;
+  @include body;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-4);
 }
 
 .detail {
-    margin: 0 0 1rem;
-    padding: 0.75rem 1rem;
-    background-color: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
-    font-size: 0.85rem;
-    white-space: pre-wrap;
-    word-break: break-word;
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-muted);
+  // 1px — sub-pixel borders blur on non-retina; keep as device pixel.
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text-secondary);
 }
 
 .retry {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
-    font: inherit;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 150ms ease;
+  @include reset-button;
+  @include transition(background-color color, var(--duration-fast));
 
-    &:hover,
-    &:focus-visible {
-        background-color: rgba(255, 255, 255, 0.14);
-    }
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-primary);
+  // 1px — sub-pixel borders blur on non-retina; keep as device pixel.
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-border-strong);
+  }
+
+  @include focus-visible;
 }

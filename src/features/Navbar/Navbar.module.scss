@@ -1,135 +1,143 @@
-$mobile-breakpoint: 768px;
+@use 'shared/styles' as *;
 
 .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    height: var(--navbar-height, 56px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-navbar);
+  height: var(--navbar-height);
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    padding: 0 1rem;
-    background-color: rgba(2, 9, 23, 0.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 var(--space-4);
+  background-color: var(--color-bg-surface-overlay);
+  backdrop-filter: blur(0.5rem) saturate(140%);
+  -webkit-backdrop-filter: blur(0.5rem) saturate(140%);
+  // 1px — sub-pixel borders blur on non-retina; keep as device pixel.
+  border-bottom: 1px solid var(--color-border-subtle);
 
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .brand {
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
 }
 
 .navRoot {
-    display: flex;
-    gap: 0.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    align-items: center;
+  @include reset-list;
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
 }
 
 .cartIndicatorWrap {
-    list-style: none;
-    margin-left: 0.5rem;
+  list-style: none;
+  margin-left: var(--space-2);
 }
 
 .cartIndicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.4rem 0.75rem;
-    color: rgba(255, 255, 255, 0.85);
-    background-color: rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: background-color 150ms ease;
+  @include reset-link;
+  @include transition(background-color color, var(--duration-fast));
 
-    &:hover,
-    &:focus-visible {
-        background-color: rgba(255, 255, 255, 0.12);
-    }
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-muted);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text-primary);
+  }
+
+  @include focus-visible;
 }
 
 .cartBadge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.4rem;
-    height: 1.4rem;
-    padding: 0 0.4rem;
-    background-color: #4a8df0;
-    color: #fff;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding: 0 var(--space-2);
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
 .hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    width: 40px;
-    height: 40px;
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    padding: 0;
+  @include reset-button;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3125rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: transparent;
+
+  @include focus-visible;
 }
 
 .bar {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: #fff;
-    transition: transform 200ms ease, opacity 200ms ease;
-    transform-origin: center;
+  display: block;
+  width: 1.375rem;
+  // 2px — bar thickness is a physical hairline; matches the design's
+  // intent for the hamburger icon to read crisply at any zoom.
+  height: 2px;
+  background: var(--color-text-primary);
+  @include transition(transform opacity, var(--duration-base));
+  transform-origin: center;
 }
 
 .barOpen1 {
-    transform: translateY(7px) rotate(45deg);
+  transform: translateY(0.4375rem) rotate(45deg);
 }
 
 .barOpen2 {
-    opacity: 0;
+  opacity: 0;
 }
 
 .barOpen3 {
-    transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-0.4375rem) rotate(-45deg);
 }
 
-@media (max-width: $mobile-breakpoint) {
-    .hamburger {
-        display: flex;
-    }
+@include mobile {
+  .hamburger {
+    display: flex;
+  }
 
-    .navRoot {
-        position: fixed;
-        top: var(--navbar-height, 56px);
-        left: 0;
-        right: 0;
-        flex-direction: column;
-        gap: 0;
-        padding: 0.5rem 0;
-        background-color: rgba(2, 9, 23, 0.98);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  .navRoot {
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: var(--space-2) 0;
+    background-color: var(--color-bg-surface-overlay);
+    // 1px — sub-pixel borders blur on non-retina; keep as device pixel.
+    border-bottom: 1px solid var(--color-border-subtle);
 
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 250ms ease;
-    }
+    max-height: 0;
+    overflow: hidden;
+    @include transition(max-height, var(--duration-base));
+  }
 
-    .navRootOpen {
-        max-height: calc(100vh - var(--navbar-height, 56px));
-        overflow-y: auto;
-    }
+  .navRootOpen {
+    max-height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
+  }
 }
