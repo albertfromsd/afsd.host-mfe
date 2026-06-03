@@ -77,6 +77,7 @@ export default defineConfig({
 
       exposes: {
         [FEDERATION.EXPOSES.STORE]: './src/shared/stores/store.ts',
+        [FEDERATION.EXPOSES.EVENT_BUS]: './src/shared/lib/eventBus.ts',
       },
 
       remotes: {

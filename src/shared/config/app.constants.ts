@@ -29,6 +29,7 @@ export const FEDERATION = {
   /** Modules this app exposes. Keys are the public federation paths. */
   EXPOSES: {
     STORE: './stores/store',
+    EVENT_BUS: './lib/eventBus',
   },
   /**
    * Federated remotes this app consumes. Each entry pairs the remote's

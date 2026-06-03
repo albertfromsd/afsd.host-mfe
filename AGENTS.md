@@ -12,6 +12,18 @@ follow this file.
 - `pnpm typecheck` — `tsc --noEmit`
 - `pnpm test` — vitest run
 - `pnpm lint` / `pnpm format` — ESLint / Prettier
+- `pnpm check:sync` — verify host ↔ remote contract files are in sync (CI-enforced)
+- `pnpm gen` / `pnpm gen:component <Name>` / `pnpm gen:page <Name>` / `pnpm gen:slice <name>` — scaffold from `plop-templates/`. Use these instead of hand-rolling files; they produce code that already matches AGENTS.md/STYLING.md conventions.
+- `pnpm e2e` — Playwright host↔remote smoke (requires `pnpm e2e:install` once)
+
+## Companion docs (read first when relevant)
+
+- **[STATE_CONTRACT.md](STATE_CONTRACT.md)** — the three files that define `AppState`. Touch one, touch all three.
+- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** — symptom-first index of common failure modes.
+- **[docs/REMOTE_HOST_COMMS.md](docs/REMOTE_HOST_COMMS.md)** — the four ways host and remote talk to each other.
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — env vars, CORS, federation versioning, rollback.
+- **[docs/adr/](docs/adr/)** — ADRs for load-bearing decisions (read before proposing structural changes).
+- **[STYLING.md](STYLING.md)** — the full style ruleset.
 
 ## External docs
 
@@ -96,6 +108,7 @@ path even from host source code.
 | Federated module | Use                                | Never use in source            |
 | ---------------- | ---------------------------------- | ------------------------------ |
 | App store        | `from 'hostTemplate/stores/store'` | `from '@/shared/stores/store'` |
+| Event bus        | `from 'hostTemplate/lib/eventBus'` | `from '@/shared/lib/eventBus'` |
 
 Tests are the exception — they use `@/shared/stores/store` (and rely on
 [vitest.config.ts](vitest.config.ts) aliasing the federation path to the
@@ -150,10 +163,13 @@ from [src/shared/stores/slices/](src/shared/stores/slices/).
 3. Mirror the shape additions on the **remote side**:
    - `afsd.remote-mfe/src/shared/stores/localStore.ts` (standalone fallback)
    - `afsd.remote-mfe/src/shared/types/remotes.d.ts` (federated declaration)
+4. Run `pnpm check:sync` to confirm the three files agree.
+5. Bump `STORAGE.STORE_VERSION` in BOTH `app.constants.ts` files iff the change is persist-incompatible (renamed field, removed field, narrowed type). New optional fields don't need a bump.
 
 These three files (host's slice + remote's localStore + remote's
-`remotes.d.ts`) form a contract. Drift between them is a silent
-standalone-vs-embedded behavior bug.
+`remotes.d.ts`) form a contract documented in
+[STATE_CONTRACT.md](STATE_CONTRACT.md). Drift is a silent
+standalone-vs-embedded behavior bug — the CI sync check catches it before merge.
 
 **When to add a SECOND store** (default is one composed store):
 
@@ -290,4 +306,39 @@ Canonical examples:
 - [src/shared/test/renderWithProviders.test.tsx](src/shared/test/renderWithProviders.test.tsx) — query + router
 - [src/shared/stores/store.test.ts](src/shared/stores/store.test.ts) — pure store unit tests
 
-Don't add MSW yet — defer until we have a real API surface to mock.
+MSW is wired in at `src/shared/test/msw/`. Add handlers there as endpoints
+appear; `setup.ts` starts the server in test runs. See its README for the
+handler convention.
+
+## Cross-template sync (CI-enforced)
+
+A small set of files MUST be byte-identical between host and remote, and the
+federated `AppState` shape MUST stay shape-compatible across three files.
+`scripts/check-sync.ts` enforces both. CI runs `pnpm check:sync` on the host;
+local repro is the same command.
+
+When the check fails:
+
+1. Decide which side has the correct content — the host is the canonical source.
+2. Update the lagging side to match.
+3. For `AppState` drift, follow the [STATE_CONTRACT.md](STATE_CONTRACT.md) checklist.
+
+To add a new file pair to the sync list, edit `BYTE_IDENTICAL_FILES` or
+`CONTRACT_CHECKS` in `scripts/check-sync.ts`.
+
+See [docs/adr/0002-templates-stay-independent.md](docs/adr/0002-templates-stay-independent.md)
+for why we use sync-by-copy rather than a workspace.
+
+## Remote ↔ host communication
+
+Four patterns: shared store, event bus, query cache, props. Picking the
+wrong one is a common AI-agent failure. See
+[docs/REMOTE_HOST_COMMS.md](docs/REMOTE_HOST_COMMS.md) for the
+when-to-use-which decision table.
+
+## Troubleshooting
+
+For common failure modes (federation errors, theme desync, persisted state
+empty, HMR breaking, sync-check failures) see
+[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). It's symptom-indexed —
+search by what you see, not what you think the cause is.

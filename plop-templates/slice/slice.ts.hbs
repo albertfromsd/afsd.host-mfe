@@ -1,0 +1,33 @@
+import type { StateCreator } from 'zustand';
+import type { AppState } from '../store';
+
+/**
+ * {{pascalCase name}}Slice — state + actions for the {{name}} concern.
+ *
+ * Compose into the root store in `../store.ts` by importing
+ * `create{{pascalCase name}}Slice` and `{{pascalCase name}}Slice`, spreading
+ * the creator into the persist callback, and intersecting the type into
+ * `AppState`.
+ *
+ * Cross-template sync (see STATE_CONTRACT.md):
+ *   - Mirror these fields in ../../../../afsd.remote-mfe/src/shared/stores/localStore.ts
+ *   - Mirror the type in ../../../../afsd.remote-mfe/src/shared/types/remotes.d.ts
+ *   - Run `pnpm check:sync` to verify.
+ */
+
+export type {{pascalCase name}}Slice = {
+  // TODO: state fields
+  // example: status: 'idle' | 'pending' | 'done';
+
+  // TODO: actions
+  // example: setStatus: (status: {{pascalCase name}}Slice['status']) => void;
+};
+
+export const create{{pascalCase name}}Slice: StateCreator<
+  AppState,
+  [],
+  [],
+  {{pascalCase name}}Slice
+> = (/* set, get */) => ({
+  // TODO: initial state + action implementations
+});

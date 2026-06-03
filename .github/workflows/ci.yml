@@ -15,7 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout host
+        uses: actions/checkout@v4
+        with:
+          path: afsd.host-mfe
+
+      # The drift check (`pnpm check:sync`) reads files from the sibling
+      # remote template. CI checks out both side-by-side; SYNC_REMOTE_PATH
+      # then resolves to ../afsd.remote-mfe relative to the host root.
+      # Don't fail the host build if the remote repo is unavailable;
+      # the sync step will exit cleanly with a clear message when the
+      # sibling is missing (see scripts/check-sync.ts).
+      - name: Checkout remote (sibling for sync check)
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: albertfromsd/afsd.remote-mfe
+          path: afsd.remote-mfe
 
       - uses: pnpm/action-setup@v4
         with:
@@ -24,20 +40,87 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: afsd.host-mfe/.nvmrc
           cache: pnpm
+          cache-dependency-path: afsd.host-mfe/pnpm-lock.yaml
 
       - name: Install dependencies
+        working-directory: afsd.host-mfe
         run: pnpm install --frozen-lockfile
 
       - name: Lint
+        working-directory: afsd.host-mfe
         run: pnpm lint
 
       - name: Typecheck
+        working-directory: afsd.host-mfe
         run: pnpm typecheck
 
       - name: Test
+        working-directory: afsd.host-mfe
         run: pnpm test
 
+      # SYNC_STRICT=1 makes the script hard-fail on a missing sibling, so a
+      # silently-skipped checkout can't bypass the drift check. If you
+      # intentionally don't have a remote sibling repo, drop this step.
+      - name: Cross-template sync check
+        working-directory: afsd.host-mfe
+        env:
+          SYNC_STRICT: '1'
+        run: pnpm check:sync
+
       - name: Build
+        working-directory: afsd.host-mfe
         run: pnpm build
+
+  smoke:
+    name: Playwright host↔remote smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: validate
+    if: ${{ !cancelled() }}
+    steps:
+      - name: Checkout host
+        uses: actions/checkout@v4
+        with:
+          path: afsd.host-mfe
+
+      - name: Checkout remote
+        uses: actions/checkout@v4
+        with:
+          repository: albertfromsd/afsd.remote-mfe
+          path: afsd.remote-mfe
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: afsd.host-mfe/.nvmrc
+          cache: pnpm
+
+      - name: Install host deps
+        working-directory: afsd.host-mfe
+        run: pnpm install --frozen-lockfile
+
+      - name: Install remote deps
+        working-directory: afsd.remote-mfe
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        working-directory: afsd.host-mfe
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        working-directory: afsd.host-mfe
+        run: pnpm e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: afsd.host-mfe/playwright-report/
+          retention-days: 7

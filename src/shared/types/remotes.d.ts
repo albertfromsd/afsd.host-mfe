@@ -6,3 +6,7 @@ declare module 'remoteTemplate/App' {
 declare module 'hostTemplate/stores/store' {
   export * from '@/shared/stores/store';
 }
+
+declare module 'hostTemplate/lib/eventBus' {
+  export * from '@/shared/lib/eventBus';
+}

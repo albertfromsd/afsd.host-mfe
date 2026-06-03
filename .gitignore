@@ -77,6 +77,15 @@ coverage/
 storybook-static/
 
 ############################
+# Playwright
+############################
+
+playwright-report/
+test-results/
+.playwright/
+playwright/.cache/
+
+############################
 # Local environment overrides
 ############################
 

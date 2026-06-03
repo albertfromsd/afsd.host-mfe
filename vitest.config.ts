@@ -15,11 +15,18 @@ export default defineConfig({
         __dirname,
         'src/shared/stores/store.ts',
       ),
+      [`${FEDERATION.NAME}${FEDERATION.EXPOSES.EVENT_BUS.slice(1)}`]: path.resolve(
+        __dirname,
+        'src/shared/lib/eventBus.ts',
+      ),
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/shared/test/setup.ts',
+    // Playwright tests live in e2e/ and use their own runner — keep vitest
+    // from picking them up.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
   },
 });

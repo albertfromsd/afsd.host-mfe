@@ -3,6 +3,7 @@ import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useStore } from 'hostTemplate/stores/store';
 import { queryClient } from '@/shared/lib/queryClient';
+import { logger } from '@/shared/lib/logger';
 import '@/shared/styles/global.scss';
 import './App.scss';
 import Navbar from './features/Navbar/Navbar';
@@ -61,7 +62,18 @@ const App = () => {
       <div className="app-shell">
         <Navbar items={navItems} />
         <main className="app-main">
-          <ErrorBoundary FallbackComponent={RouteTreeFallback}>
+          <ErrorBoundary
+            FallbackComponent={RouteTreeFallback}
+            onError={(error, info) =>
+              logger.event({
+                name: 'route.error',
+                level: 'error',
+                message: 'Route tree crashed',
+                context: { componentStack: info.componentStack },
+                error,
+              })
+            }
+          >
             <AppRoutes />
           </ErrorBoundary>
         </main>

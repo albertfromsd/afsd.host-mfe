@@ -1,0 +1,12 @@
+import { describe, it, expect, afterEach } from 'vitest';
+import { renderWithProviders, resetStore } from '@/shared/test/renderWithProviders';
+import {{pascalCase name}} from './{{pascalCase name}}';
+
+afterEach(resetStore);
+
+describe('<{{pascalCase name}} />', () => {
+  it('renders the label', () => {
+    const { getByText } = renderWithProviders(<{{pascalCase name}} label="Hello" />);
+    expect(getByText('Hello')).toBeInTheDocument();
+  });
+});

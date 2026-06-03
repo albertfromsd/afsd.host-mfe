@@ -1,0 +1,14 @@
+import s from './{{pascalCase name}}.module.scss';
+
+type {{pascalCase name}}Props = {
+  /** Visible label or aria-label. Required so accessibility is opt-out, not opt-in. */
+  label?: string;
+};
+
+export default function {{pascalCase name}}({ label }: {{pascalCase name}}Props) {
+  return (
+    <div className={s.root} aria-label={label}>
+      {label ?? '{{pascalCase name}}'}
+    </div>
+  );
+}
