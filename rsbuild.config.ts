@@ -53,6 +53,12 @@ export default defineConfig({
 
   dev: {
     hmr: true,
+    // Federation's split build pipeline produces two HMR sessions with separate
+    // chunk-ID spaces; when the first HMR sync races against runtime init,
+    // `webpackHotUpdate<name>` crashes at jsonp_chunk_loading with `.push()` on
+    // undefined. Explicit `false` overrides @module-federation/enhanced's implicit
+    // lazyCompilation and gives a stable single-pipeline HMR.
+    lazyCompilation: false,
   },
 
   html: {
